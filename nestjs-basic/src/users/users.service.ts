@@ -1,4 +1,3 @@
-import { ObjectId } from './../../node_modules/bson/src/objectid';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -27,13 +26,34 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  async findOne(id: number) {
-    // let user = await this.userModel.findById();
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return { message: 'Id is not valid' };
+    }
+    let user = await this.userModel.findById(id);
+    if (!user) {
+      return { message: 'User not found' };
+    }
+    return { user: user };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return { message: 'Id is not valid' };
+    }
+    let user = await this.userModel.findById(id);
+    if (!user) {
+      return { message: 'User not found' };
+    }
+    try {
+      let updateUser = await this.userModel.updateOne(
+        { _id: id },
+        { ...updateUserDto },
+      );
+    } catch (err) {
+      return err;
+    }
+    return { message: true };
   }
 
   remove(id: number) {

@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
+const ms = require('ms');
 
 @Module({
   imports: [
@@ -17,7 +18,9 @@ import { AuthController } from './auth.controller';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRE') },
+        signOptions: {
+          expiresIn: ms(configService.get<string>('JWT_EXPIRE')) / 1000,
+        },
       }),
       inject: [ConfigService],
     }),

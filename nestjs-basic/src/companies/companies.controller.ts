@@ -19,27 +19,29 @@ import { use } from 'passport';
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
+  @ResponseMessage('Create a new company')
   @Post()
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
-    console.log(user);
     return this.companiesService.create(createCompanyDto, user);
   }
 
   @Get()
   @ResponseMessage('Fetch List Company with paginate')
   findAll(
-    @Query('page') currentPage: string,
-    @Query('limit') limit: string,
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
     @Query() qs: string,
   ) {
     return this.companiesService.findAll(+currentPage, +limit, qs);
   }
 
+  @ResponseMessage('Create a company')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(+id);
   }
 
+  @ResponseMessage('Update a user')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -49,6 +51,7 @@ export class CompaniesController {
     return this.companiesService.update(id, updateCompanyDto, user);
   }
 
+  @ResponseMessage('Remove a user')
   @Delete(':id')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.companiesService.remove(id, user);

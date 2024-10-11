@@ -94,14 +94,24 @@ export class UsersService {
     return { message: true };
   }
 
-  async remove(id: string) {
+  async remove(id: string,user:IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return { message: 'Id is not valid' };
     }
     try {
+      await this.userModel.updateOne(
+        { _id: id },
+        {
+          deletedBy: {
+            _id: user._id,
+            email: user.email,
+          },
+        },
+      );
+
       return this.userModel.softDelete({ _id: id });
     } catch (err) {
-      return { message: err };
+      throw new BadRequestException(err);
     }
   }
 

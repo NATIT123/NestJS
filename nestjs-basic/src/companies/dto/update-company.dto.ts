@@ -9,4 +9,7 @@ export class UpdateCompanyDto {
 
   @IsNotEmpty({ message: 'Description khong dc de trong' })
   description: string;
+
+  @IsNotEmpty({ message: 'Logo khong dc de trong' })
+  logo: string;
 }

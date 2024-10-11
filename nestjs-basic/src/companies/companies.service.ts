@@ -47,6 +47,7 @@ export class CompaniesService {
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
+      .select(projection)
       .exec();
 
     return {
@@ -60,8 +61,15 @@ export class CompaniesService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return { message: 'Id is not valid' };
+    }
+    let company = await this.companyModel.findById(id);
+    if (!company) {
+      return { message: 'Company not found' };
+    }
+    return company;
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {

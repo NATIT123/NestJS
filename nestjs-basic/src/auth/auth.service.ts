@@ -21,14 +21,19 @@ export class AuthService {
         user.password,
       );
       if (isValid) {
-        return user;
+        const returnUser = await user.populate({
+          path: 'role',
+          select: { _id: 1, name: 1, permissions: 1 },
+          populate: [{ path: 'permissions' }],
+        });
+        return returnUser;
       }
     }
     return null;
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role } = user;
+    const { _id, name, email, role, permissions } = user;
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -55,6 +60,7 @@ export class AuthService {
         name,
         email,
         role,
+        permissions,
       },
     };
   }
@@ -84,14 +90,14 @@ export class AuthService {
 
       let user = await this.usersService.findUserByToken(refreshToken);
       if (user) {
-        const { _id, name, email, role } = user;
+        const { _id, name, email } = user;
         const payload = {
           sub: 'token refresh',
           iss: 'from server',
           _id,
           name,
           email,
-          role,
+          role: user.role.name,
         };
         const refreshToken = this.createRefreshToken(payload);
 
@@ -111,7 +117,7 @@ export class AuthService {
             _id,
             name,
             email,
-            role,
+            role: user.role.name,
           },
         };
       } else {

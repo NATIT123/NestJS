@@ -40,7 +40,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Address khong dc de trong' })
   address: string;
 
-  @IsNotEmpty({ message: 'Role khong dc de trong' })
+  @IsNotEmpty({ message: 'RoleId khong dc de trong' })
   role: string;
 
   @IsDefined()

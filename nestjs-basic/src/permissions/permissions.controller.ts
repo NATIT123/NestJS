@@ -12,7 +12,7 @@ import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { IUser } from 'src/users/users.interface';
-import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import { ResponseMessage, User } from 'src/decorator/customize';
 
 @Controller('permissions')
 export class PermissionsController {
@@ -41,12 +41,6 @@ export class PermissionsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(id);
-  }
-
-  @ResponseMessage('Get list permissions')
-  @Post('by-users')
-  getpermissionsByUser(@User() user: IUser) {
-    return this.permissionsService.findByUser(user);
   }
 
   @ResponseMessage('Update a permission')

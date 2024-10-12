@@ -84,20 +84,6 @@ export class PermissionsService {
     return Permission;
   }
 
-  async findByUser(user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(user._id)) {
-      throw new NotFoundException('Id is not valid');
-    }
-    let Permission = await this.permissionModel.find({
-      userId: user._id,
-    });
-    if (!Permission) {
-      throw new NotFoundException('Permission is not found');
-    }
-    console.log(Permission);
-    return Permission;
-  }
-
   async update(
     id: string,
     updatePermissionDto: UpdatePermissionDto,

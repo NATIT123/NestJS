@@ -89,9 +89,21 @@ export class ResumesService {
     if (!mongoose.Types.ObjectId.isValid(user._id)) {
       throw new NotFoundException('Id is not valid');
     }
-    let resume = await this.resumeModel.find({
-      userId: user._id,
-    });
+    let resume = await this.resumeModel
+      .find({
+        userId: user._id,
+      })
+      .sort('-createdAt')
+      .populate([
+        {
+          path: 'companyId',
+          select: { name: 1 },
+        },
+        {
+          path: 'jobId',
+          select: { name: 1 },
+        },
+      ]);
     if (!resume) {
       throw new NotFoundException('Resume is not found');
     }

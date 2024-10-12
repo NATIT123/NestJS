@@ -25,7 +25,7 @@ export class UsersService {
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
-    console.log(filter);
+    console.log(projection);
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.userModel.find(filter)).length;
@@ -37,6 +37,7 @@ export class UsersService {
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
+      .select(projection)
       .exec();
 
     return {
@@ -54,11 +55,14 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id is not valid');
     }
-    let user = await this.userModel.findById(id).select('-password');
+    let user = await this.userModel
+      .findById(id)
+      .populate({ path: 'role', select: { name: 1 } })
+      .select('-password');
     if (!user) {
       throw new BadRequestException('User is not valid');
     }
-    return { user: user };
+    return { user };
   }
 
   async isValidPassword(password: string, hashPassword: string) {
@@ -66,7 +70,7 @@ export class UsersService {
   }
 
   async findOneByUserName(userName: string) {
-    return this.userModel.findOne({ email: userName });
+    return await this.userModel.findOne({ email: userName });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, userUpdated: IUser) {
@@ -94,9 +98,22 @@ export class UsersService {
     return { message: true };
   }
 
-  async remove(id: string,user:IUser) {
+  async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return { message: 'Id is not valid' };
+    }
+    const userFind = await (
+      await this.userModel.findById(id)
+    ).populate({
+      path: 'role',
+      select: { name: 1 },
+    });
+    if (
+      userFind ||
+      userFind.email === 'admin@gmail.com' ||
+      userFind.role.name === 'Admin'
+    ) {
+      throw new BadRequestException('Can not delete Admin');
     }
     try {
       await this.userModel.updateOne(
@@ -144,8 +161,8 @@ export class UsersService {
       age,
       phone,
       gender,
-      role,
       company,
+      role,
     } = user;
     const isExistEmail = await this.userModel.findOne({ email: email });
     if (isExistEmail) {
@@ -161,7 +178,7 @@ export class UsersService {
       phone,
       gender,
       role,
-      company: company,
+      company,
       createdBy: {
         _id: userCreated._id,
         email: userCreated.email,
@@ -182,6 +199,8 @@ export class UsersService {
   }
 
   findUserByToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken });
+    return await this.userModel
+      .findOne({ refreshToken })
+      .populate({ path: 'role' });
   };
 }

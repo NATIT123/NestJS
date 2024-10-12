@@ -13,7 +13,7 @@ export class CreateRoleDto {
   isActive: string;
 
   @IsNotEmpty({ message: 'Permissions is not empty' })
-  @IsMongoId({ message: 'each permission is mongo objectid' })
+  @IsMongoId({ each: true, message: 'each permission is mongo objectid' })
   @IsArray({ message: 'permissions must be an array' })
   permissions: mongoose.Schema.Types.ObjectId[];
 }

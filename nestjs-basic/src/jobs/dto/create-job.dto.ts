@@ -14,6 +14,9 @@ class Company {
 
   @IsNotEmpty()
   name: string;
+
+  @IsNotEmpty()
+  logo: string;
 }
 
 export class CreateJobDto {
@@ -46,6 +49,9 @@ export class CreateJobDto {
 
   @IsNotEmpty({ message: 'isActive khong dc de trong' })
   isActive: boolean;
+
+  @IsNotEmpty({ message: 'Logo is not empty' })
+  logo: string;
 
   @IsDefined()
   @IsNotEmptyObject()

@@ -11,7 +11,11 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import {
+  ResponseMessage,
+  SkipCheckPermission,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from './users.interface';
 
 @Controller('users')
@@ -19,6 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ResponseMessage('Get all user with paginate')
+  @SkipCheckPermission()
   @Get()
   findAll(
     @Query('current') currentPage: string,

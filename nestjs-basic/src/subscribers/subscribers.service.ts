@@ -81,27 +81,19 @@ export class SubscribersService {
     return { Subcriber };
   }
 
-  async update(
-    id: string,
-    updateSubcriberDto: UpdateSubscriberDto,
-    user: IUser,
-  ) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new NotFoundException('Id is not valid');
-    }
-    let Subcriber = await this.subscriberModel.findById(id);
-    if (!Subcriber) {
-      throw new NotFoundException('Subcriber is not found');
-    }
+  async update(updateSubcriberDto: UpdateSubscriberDto, user: IUser) {
     try {
       await this.subscriberModel.updateOne(
-        { _id: id },
+        { email: user.email },
         {
           ...updateSubcriberDto,
           updatedBy: {
             _id: user._id,
             email: user.email,
           },
+        },
+        {
+          upsert: true,
         },
       );
     } catch (err) {
@@ -129,5 +121,8 @@ export class SubscribersService {
     } catch (err) {
       throw new BadRequestException(err);
     }
+  }
+  async getSkills(user: IUser) {
+    return this.subscriberModel.findOne({ email: user.email, skills: 1 });
   }
 }

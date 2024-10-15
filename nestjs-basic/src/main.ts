@@ -7,6 +7,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
@@ -18,7 +19,12 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.useStaticAssets(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      // forbidNonWhitelisted:true
+    }),
+  );
 
   ///Cookie
   app.use(cookieParser());
@@ -38,6 +44,9 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: ['1', '2'],
   });
+
+  app.use(helmet());
+
   await app.listen(configService.get<string>('PORT') || 3000);
 }
 bootstrap();

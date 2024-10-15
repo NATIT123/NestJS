@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from 'src/decorator/customize';
+import { IS_PUBLIC_KEY, IS_PUBLIC_PERMISSION } from 'src/decorator/customize';
 import { Request } from 'express';
 import { Permission } from 'src/permissions/schemas/permission.schema';
 
@@ -30,6 +30,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err, user, info, context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest();
 
+    const isSkipPermission = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_PERMISSION,
+      [context.getHandler(), context.getClass()],
+    );
+
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException('Token is not valid');
@@ -48,7 +53,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     );
 
     if (targetEndPoint.startsWith('/api/v1/auth')) isExist = true;
-    if (!isExist) {
+    if (!isExist && !isSkipPermission) {
       throw new ForbiddenException(
         "You don't have permission to access this route",
       );

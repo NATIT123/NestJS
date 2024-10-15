@@ -24,7 +24,9 @@ export class AuthService {
         const returnUser = await user.populate({
           path: 'role',
           select: { _id: 1, name: 1, permissions: 1 },
-          populate: [{ path: 'permissions' }],
+          populate: [
+            { path: 'permissions', select: { method: 1, apiPath: 1 } },
+          ],
         });
         return returnUser;
       }
@@ -33,7 +35,7 @@ export class AuthService {
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role, permissions } = user;
+    const { _id, name, email, role } = user;
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -60,7 +62,6 @@ export class AuthService {
         name,
         email,
         role,
-        permissions,
       },
     };
   }

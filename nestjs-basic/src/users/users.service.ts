@@ -109,7 +109,7 @@ export class UsersService {
       select: { name: 1 },
     });
     if (
-      userFind ||
+      !userFind ||
       userFind.email === 'admin@gmail.com' ||
       userFind.role.name === 'Admin'
     ) {
